@@ -1,0 +1,85 @@
+buildscript {
+    repositories {
+        maven { url "http://repo.spring.io/libs-release" }
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.1.5.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+
+jar {
+    baseName = 'spring-mvc-angular'
+    version =  '0.1.0'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "http://repo.spring.io/libs-release" }
+}
+
+dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.2'
+    compile "org.projectlombok:lombok:1.14.8"
+    compile "org.springframework.boot:spring-boot-starter-thymeleaf"
+
+    // Spring Security
+/*
+    compile 'org.springframework.security:spring-security-web:3.2.5.RELEASE'
+    compile 'org.springframework.security:spring-security-config:3.2.5.RELEASE'
+*/
+
+    // JS & CSS Webjars
+    compile 'org.webjars:angularjs:1.2.23'
+    compile "org.webjars:angular-ui:0.4.0-3"
+    compile 'org.webjars:angular-ui-bootstrap:0.11.0-2'
+
+    compile 'org.webjars:rxjs:2.3.9'
+    compile 'org.webjars:rx-angular:0.0.11'
+
+    compile 'org.webjars:cryptojs:3.1.2'
+
+    // JPA
+/*
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+    compile("com.h2database:h2")
+    compile 'org.springframework.data:spring-data-jpa:1.7.0.RELEASE'
+*/
+
+    // Tests
+    compile "org.springframework.boot:spring-boot-starter-test"
+    testCompile("org.springframework:spring-test")
+    testCompile("junit:junit")
+}
+
+    configurations {
+        // exclude commons-logging, log4j, and j.u.logging - we use slf4j and logback
+        // http://spring-java-ee.posterous.com/gradle-build-for-spring-framework-and-slf4j-w
+        all*.exclude group: 'commons-logging'
+        all*.exclude group: 'log4j'
+
+        // exclude aspectj - we do not use it
+        // all*.exclude group: 'org.aspectj'
+    }
+
+
+    configurations.all {
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.springframework') {
+                details.useVersion '4.0.2.RELEASE'
+            }
+        }
+
+}
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.0'
+}

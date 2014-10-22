@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" ng-app="calculate">
+<head>
+    <link th:substituteby="fragments/head::headcontent"/>
+    <script th:fragment="headcontent" th:src='@{/webjars/angularjs/1.2.23/angular-sanitize.js}'></script>
+    <script th:src="@{resources/js/calculate.js}"></script>
+
+    <style type="text/css">
+        .css-form input.ng-invalid.ng-dirty {
+        background-color: #FA787E;
+        }
+
+        .css-form input.ng-valid.ng-dirty {
+        background-color: #78FA89;
+        }
+    </style>
+
+</head>
+<body>
+
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Calculate</a>
+        </div>
+    </div>
+</nav>
+<form ng-controller="CalculateCtrl" name="form" class="css-form" novalidate="true">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="input-group">
+                <input type="number" class="form-control" required="true" ng-model="operation.operand"/>
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="button">Square</button>
+                  </span>
+            </div>
+            <!-- /input-group -->
+        </div>
+    </div>
+    <div id="result" class="well well-lg" th:text="${#numbers.formatDecimal(result, 1, 2)}" ng-bind-html="operation.result">
+        Please enter a valid number
+    </div>
+</form>
+</body>
+</html>
