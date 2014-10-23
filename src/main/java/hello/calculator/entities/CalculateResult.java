@@ -22,8 +22,12 @@ public class CalculateResult {
     @Setter
     private Double value;
 
+    @Getter
+    @Setter
+    private String operation;
+
     @Override
     public String toString() {
-        return String.format("Result [id=%d, value=%f]", id, value);
+        return String.format("CalculateResult [id=%d, operation=%s, value=%f]", id, operation, value);
     }
 }
