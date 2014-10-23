@@ -61,7 +61,7 @@ public class HelloTests {
                 .andExpect(content().string(containsString(">25.00<")));
 
         this.mockMvc.perform(
-                post("/calculate-results")
+                post("/data/calculate-results")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"value\":\"25\",\"operation\":\"5^2\"}"))
                 .andExpect(status().isCreated());
