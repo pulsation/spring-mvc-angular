@@ -3,10 +3,8 @@ package hello.calculator.entities;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.sql.Timestamp;
 
 /**
  * Created by pulsation on 9/25/14.
@@ -26,8 +24,18 @@ public class CalculateResult {
     @Setter
     private String operation;
 
+    @Getter
+    @Setter
+    private Timestamp created;
+
     @Override
     public String toString() {
         return String.format("CalculateResult [id=%d, operation=%s, value=%f]", id, operation, value);
+    }
+
+    @PrePersist
+    protected void beforeCreate() {
+        if(created == null)
+            created = new Timestamp(System.currentTimeMillis());
     }
 }
