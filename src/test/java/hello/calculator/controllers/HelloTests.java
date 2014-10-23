@@ -1,7 +1,8 @@
 package hello.calculator.controllers;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.containsString;
 
 import hello.Application;
 import org.junit.Before;
@@ -20,7 +21,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.nio.charset.Charset;
 
 /**
- * Created by psamlong on 9/10/14.
+ * Created by pulsation on 9/10/14.
  */
 
 
@@ -41,14 +42,23 @@ public class HelloTests {
     @Test
     public void responseCalculator() throws Exception {
         this.mockMvc.perform(
-                get("/add/5/6")
+                get("/")
                         .accept(new MediaType("text", "plain", Charset.forName("UTF-8"))))
-                .andExpect(status().isOk()
-                );
+                .andExpect(status().isOk())
+        .andExpect(content().string(containsString("<html ng-app=\"calculate\"")));
 
         this.mockMvc.perform(
-                get("/add/5")
+                get("/unknown_route")
                         .accept(new MediaType("text", "plain", Charset.forName("UTF-8"))))
                 .andExpect(status().isNotFound());
+
+        this.mockMvc.perform(
+                post("/partials/square")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"x\":\"5\"}")
+                        .accept(new MediaType("text", "plain", Charset.forName("UTF-8"))))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(">25.00<")));
+
     }
 }
