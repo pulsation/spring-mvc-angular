@@ -34,8 +34,9 @@
             </div>
         </div>
         <div ng-bind-html="operation.resultPartial">
-            <div id="result" class="well well-lg" th:text="${#numbers.formatDecimal(result, 1, 2)}">
-                Please enter a valid number
+            <div id="result" class="well well-lg">
+                <span>Square: </span>
+                <span th:text="${#numbers.formatDecimal(result, 1, 2)}" />
             </div>
         </div>
 
