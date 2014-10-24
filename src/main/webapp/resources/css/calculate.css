@@ -5,3 +5,13 @@
 .css-form input.ng-valid.ng-dirty {
     background-color: #78FA89;
 }
+
+.alert-animate {
+  -webkit-transition:all ease-in 0.3s;
+  transition:all ease-in 0.3s;
+  opacity:1;
+}
+
+.alert-animate.ng-hide {
+  opacity:0;
+}

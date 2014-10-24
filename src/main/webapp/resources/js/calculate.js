@@ -1,8 +1,8 @@
 console.log("Javascript correctly included");
 
-angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'rx', 'ngCookies'])
+angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'rx', 'ngAnimate'])
 
-.controller('CalculateCtrl',  function ($scope, $http, observeOnScope, $compile) {
+.controller('CalculateCtrl',  function ($scope, $http, observeOnScope, $timeout) {
     console.log("Entered controller");
 
     $scope.operation = {};
@@ -27,7 +27,7 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'rx', 'ngCookies'])
     }
 
     // Create an observable
-    var obs1 =
+    var updatePartialObservable =
     // Watch scope variable named "operation.operand"
     $scope.$toObservable('operation.operand')
     // Throttle stream in order to avoid too much ajax requests
@@ -40,8 +40,8 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'rx', 'ngCookies'])
 //    .retry()
     ;
 
-    // Subscribe to observer stream
-    obs1.subscribe(function success(response) {
+    // Subscribe to observable stream
+    updatePartialObservable.subscribe(function success(response) {
         // Replace HTML code with data content
         $scope.operation.resultPartial = response.data;
     }, function failure(data) {
@@ -50,7 +50,7 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'rx', 'ngCookies'])
         console.log(data);
     });
 
-    var obs2 = $scope.$createObservableFunction('save')
+    var saveResultObservable = $scope.$createObservableFunction('saveResult')
     .map(function (operand) {
         return { operation: operand + "^2", value: operand * operand };
     })
@@ -58,9 +58,16 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'rx', 'ngCookies'])
         return httpSaveResult(operationResult.operation, operationResult.value );
     });
 
-    obs2.subscribe(function success(response) {
+    $scope.alertTimeout = null;
+    saveResultObservable.subscribe(function success(response) {
         $scope.operation.saveStatus = true;
-    }, function failure(data) {
+            if ($scope.alertTimeout !== null) {
+                $timeout.cancel($scope.alertTimeout);
+            }
+            $scope.alertTimeout = $timeout(function () {
+                $scope.operation.saveStatus = null;
+            }, 1500);
+        }, function failure(data) {
         $scope.operation.saveStatus = false;
         console.log("Error saving data:");
         console.log(data);

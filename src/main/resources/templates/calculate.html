@@ -19,9 +19,9 @@
     </div>
 </nav>
 <div ng-controller="CalculateCtrl" >
-    <alert type="success" ng-show="operation.saveStatus === true">Result saved.</alert>
-    <alert type="danger" ng-show="operation.saveStatus === false">Error saving result.</alert>
-    <form name="form" class="css-form" novalidate="true" ng-submit="save(operation.operand)">
+    <alert type="success" ng-show="operation.saveStatus === true" class="alert-animate">Result saved.</alert>
+    <alert type="danger" ng-show="operation.saveStatus === false" class="alert-animate">Error saving result.</alert>
+    <form name="form" class="css-form" novalidate="true" ng-submit="saveResult(operation.operand)">
         <div class="row">
             <div class="col-lg-6">
                 <div class="input-group">
