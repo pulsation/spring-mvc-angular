@@ -26,21 +26,28 @@
         </div>
     </div>
 </nav>
-<form ng-controller="CalculateCtrl" name="form" class="css-form" novalidate="true">
-    <div class="row">
-        <div class="col-lg-6">
-            <div class="input-group">
-                <input type="number" class="form-control" required="true" ng-model="operation.operand"/>
-                  <span class="input-group-btn">
-                    <button class="btn btn-default" type="button">Square</button>
-                  </span>
+<div ng-controller="CalculateCtrl" >
+    <alert type="success" ng-show="operation.saveStatus === true">Result saved.</alert>
+    <alert type="danger" ng-show="operation.saveStatus === false">Error saving result.</alert>
+    <form name="form" class="css-form" novalidate="true" ng-submit="save(operation.operand)">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="input-group">
+                    <input type="number" class="form-control" required="true" ng-model="operation.operand"/>
+                      <span class="input-group-btn">
+                        <button class="btn btn-default">Save</button>
+                      </span>
+                </div>
+                <!-- /input-group -->
             </div>
-            <!-- /input-group -->
         </div>
-    </div>
-    <div id="result" class="well well-lg" th:text="${#numbers.formatDecimal(result, 1, 2)}" ng-bind-html="operation.result">
-        Please enter a valid number
-    </div>
-</form>
+        <div ng-bind-html="operation.resultPartial">
+            <div id="result" class="well well-lg" th:text="${#numbers.formatDecimal(result, 1, 2)}">
+                Please enter a valid number
+            </div>
+        </div>
+
+    </form>
+</div>
 </body>
 </html>
