@@ -1,9 +1,6 @@
-console.log("Javascript correctly included");
-
 angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'rx', 'ngAnimate'])
 
 .controller('CalculateCtrl',  function ($scope, $http, observeOnScope, $timeout) {
-    console.log("Entered controller");
 
     $scope.operation = {};
 
