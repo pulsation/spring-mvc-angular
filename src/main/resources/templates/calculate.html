@@ -1,19 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" ng-app="calculate">
 <head>
-    <link th:substituteby="fragments/head::headcontent"/>
-    <script th:fragment="headcontent" th:src='@{/webjars/angularjs/1.2.23/angular-sanitize.js}'></script>
+    <link th:substituteby="fragments/head::headcontent" />
+    <link rel="stylesheet" th:href="@{resources/css/calculate.css}" />
+    <script th:src='@{/webjars/angularjs/1.2.23/angular-sanitize.js}'></script>
+    <link th:fragment="headcontent" rel="stylesheet" th:href="@{/webjars/angular-ui/0.4.0/angular-ui.css}" />
     <script th:src="@{resources/js/calculate.js}"></script>
-
-    <style type="text/css">
-        .css-form input.ng-invalid.ng-dirty {
-        background-color: #FA787E;
-        }
-
-        .css-form input.ng-valid.ng-dirty {
-        background-color: #78FA89;
-        }
-    </style>
 
 </head>
 <body>
