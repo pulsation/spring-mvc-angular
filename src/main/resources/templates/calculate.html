@@ -18,12 +18,14 @@
         </div>
     </div>
 </nav>
-<div ng-controller="CalculateCtrl" >
-    <alert type="success" ng-show="operation.saveStatus === true" class="alert-animate">Result saved.</alert>
-    <alert type="danger" ng-show="operation.saveStatus === false" class="alert-animate">Error saving result.</alert>
-    <form name="form" class="css-form" novalidate="true" ng-submit="saveResult(operation.operand)">
-        <div class="row">
-            <div class="col-lg-6">
+<div ng-controller="CalculateCtrl" class="row">
+    <div class="col-md-4">
+        <alert type="success" ng-show="operation.saveStatus === true" class="alert-animate">Result saved.</alert>
+        <alert type="danger" ng-show="operation.saveStatus === false" class="alert-animate">Error saving result.</alert>
+
+        <form name="form" class="css-form" novalidate="true" ng-submit="saveResult(operation.operand)">
+            <div class="well">
+
                 <div class="input-group">
                     <input type="number" class="form-control" required="true" ng-model="operation.operand"/>
                       <span class="input-group-btn">
@@ -31,16 +33,19 @@
                       </span>
                 </div>
                 <!-- /input-group -->
-            </div>
-        </div>
-        <div ng-bind-html="operation.resultPartial">
-            <div id="result" class="well well-lg">
-                <span>Square: </span>
-                <span th:text="${#numbers.formatDecimal(result, 1, 2)}" />
-            </div>
-        </div>
 
-    </form>
+            </div>
+
+            <div ng-bind-html="operation.resultPartial">
+                <div id="result" class="well">
+                    <span>Result: </span>
+                    <span th:text="${#numbers.formatDecimal(result, 1, 2)}" />
+                </div>
+            </div>
+
+        </form>
+    </div>
+    <div class="col-md-8"><!-- TODO: Insert grid here. --></div>
 </div>
 </body>
 </html>
