@@ -1,4 +1,4 @@
-angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'rx', 'ngAnimate'])
+angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'rx', 'ngAnimate', 'ui.grid'])
 
 .controller('CalculateCtrl',  function ($scope, $http, observeOnScope, $timeout) {
 
@@ -69,6 +69,14 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'rx', 'ngAnimate'])
         console.log("Error saving data:");
         console.log(data);
     });
+
+    // Dummy data for ui-grid
+    $scope.history = [
+            {
+                "Date": "2014-10-27",
+                "Operation": "5^5",
+                "Result": "25"
+                }];
 
 });
 

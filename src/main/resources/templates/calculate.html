@@ -7,6 +7,8 @@
     <link th:fragment="headcontent" rel="stylesheet" th:href="@{/webjars/angular-ui/0.4.0/angular-ui.css}" />
     <script th:src="@{resources/js/calculate.js}"></script>
 
+    <link th:fragment="headcontent" rel="stylesheet" th:href='@{/webjars/ui-grid/3.0.0-rc.11/ui-grid.css}' />
+    <script th:fragment="headcontent" th:src='@{/webjars/ui-grid/3.0.0-rc.11/ui-grid.js}'></script>
 </head>
 <body>
 
@@ -45,7 +47,9 @@
         <alert type="danger" ng-show="operation.saveStatus === false" class="alert-animate">Error saving result.</alert>
 
     </div>
-    <div class="col-md-8"><!-- TODO: Insert grid here. --></div>
+    <div class="col-md-8">
+        <div ui-grid="{ data: history }" class="myGrid"></div>
+    </div>
 </div>
 </body>
 </html>
