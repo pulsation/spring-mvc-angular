@@ -23,6 +23,13 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'rx', 'ngAnimate', 'u
         });
     }
 
+    var httpLoadHistory = function () {
+        return $http({
+            method: 'GET',
+            url: '/data/calculate-results/'
+        });
+    }
+
     // Create an observable
     var updatePartialObservable =
     // Watch scope variable named "operation.operand"
@@ -43,7 +50,7 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'rx', 'ngAnimate', 'u
         $scope.operation.resultPartial = response.data;
     }, function failure(data) {
         // Handle error
-        console.log("Error reading data:");
+        console.log("Error loading partial:");
         console.log(data);
     });
 
@@ -66,17 +73,21 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'rx', 'ngAnimate', 'u
             }, 1500);
         }, function failure(data) {
         $scope.operation.saveStatus = false;
-        console.log("Error saving data:");
+        console.log("Error saving result:");
         console.log(data);
     });
 
-    // Dummy data for ui-grid
-    $scope.history = [
-            {
-                "Date": "2014-10-27",
-                "Operation": "5^5",
-                "Result": "25"
-                }];
+    var loadHistoryObservable = saveResultObservable.startWith(1).flatMap(function () {
+        return httpLoadHistory();
+    });
+
+    loadHistoryObservable.subscribe(function success(response) {
+        $scope.history = response.data._embedded.calculateResults;
+        console.log(response);
+    }, function failure(data) {
+        console.log("Error loading history:");
+        console.log(data);
+    });
 
 });
 
