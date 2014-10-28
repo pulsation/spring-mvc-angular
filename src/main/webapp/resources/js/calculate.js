@@ -77,29 +77,33 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
     };
 })
 
-.controller('CalculateCtrl',  function ($scope, $http, observeOnScope, $timeout, OperationResult, observableChains) {
+.controller('CalculateCtrl',  function ($scope, observeOnScope, $timeout, OperationResult, observableChains) {
 
     /**
-     * Display the proper alert once the entry has been saved
+     * Display the proper alert once an entry has been saved
      */
+    $scope.alertTimeout = null;
     var updateSaveStatus = function (success) {
         if (success) {
-            $scope.operation.saveStatus = true;
-                if ($scope.alertTimeout !== null) {
-                    $timeout.cancel($scope.alertTimeout);
-                }
-                $scope.alertTimeout = $timeout(function () {
-                    $scope.operation.saveStatus = null;
-                }, 1500
-            );
+            return function () {
+                $scope.operation.saveStatus = true;
+                    if ($scope.alertTimeout !== null) {
+                        $timeout.cancel($scope.alertTimeout);
+                    }
+                    $scope.alertTimeout = $timeout(function () {
+                        $scope.operation.saveStatus = null;
+                    }, 1500
+                );
+            }
         } else {
-            $scope.operation.saveStatus = false;
+            return function () {
+                $scope.operation.saveStatus = false;
+            }
         }
     }
 
     // Initialize scope variables
     $scope.operation    = {};
-    $scope.alertTimeout = null;
 
     // Create an observable from the scope variable named "operation.operand"
     var updatePartialObservable = observableChains.updatePartialObservableFrom($scope.$toObservable('operation.operand'));
@@ -117,7 +121,7 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
         // Replace HTML code with data content
         $scope.operation.resultPartial = response.data;
     }, function failure(data) {
-    
+
         // Handle error
         console.log("Error loading partial:");
         console.log(data);
