@@ -25,9 +25,9 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
          * Throttles and returns an http request promise loading
          * the template partial
          */
-        updatePartialObservableFrom: function (originalObservable) {
+        loadPartialObservable: function (source) {
 
-            return originalObservable
+            return source
 
             // Throttle stream in order to avoid too much ajax requests
             .throttle(300)
@@ -41,9 +41,9 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
         /**
          * Returns an http request promise saving an OperationResult resource
          */
-        saveResultObservableFrom: function (originalObservable) {
+        saveResultObservable: function (source) {
 
-            return originalObservable
+            return source
 
             // Map operand to something readable
             .map(function (operand) {
@@ -62,9 +62,9 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
         /**
          * Returns an http request that loads history
          */
-        loadHistoryObservableFrom: function (originalObservable) {
+        loadHistoryObservable: function (source) {
 
-            return originalObservable
+            return source
 
             // Load history as soon as the application is launched
             .startWith(null)
@@ -103,23 +103,15 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
     }
 
     // Initialize scope variables
-    $scope.operation    = {};
+    $scope.operation = {};
 
-    // Create an observable from the scope variable named "operation.operand"
-    var updatePartialObservable = observableChains.updatePartialObservableFrom($scope.$toObservable('operation.operand'));
-
-    // Create a shared observable from function "saveResult" that is bound to the "Save" button
-    var saveResultObservable = observableChains.saveResultObservableFrom($scope.$createObservableFunction('saveResult'))
-    .share();
-
-    // Create an observable that loads history once an entry has been saved
-    var loadHistoryObservable = observableChains.loadHistoryObservableFrom(saveResultObservable);
-
-    // Subscribe to observable stream
-    updatePartialObservable.subscribe(function success(response) {
+    // Subscribe to an observable created from the scope variable named "operation.operand"
+    observableChains.loadPartialObservable($scope.$toObservable('operation.operand'))
+    .subscribe(function success(response) {
 
         // Replace HTML code with data content
         $scope.operation.resultPartial = response.data;
+
     }, function failure(data) {
 
         // Handle error
@@ -127,13 +119,19 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
         console.log(data);
     });
 
+    // Create a shared observable from function "saveResult" that is bound to the "Save" button
+    var saveResultObservable = observableChains.saveResultObservable($scope.$createObservableFunction('saveResult'))
+    .share();
+
+    // Display the correct alert message after the entry has been saved
     saveResultObservable.subscribe(
         updateSaveStatus(true),
         updateSaveStatus(false)
     );
 
-    loadHistoryObservable.subscribe(function success(data) {
-        console.log(data);
+    // Create an observable that loads history once an entry has been saved
+    observableChains.loadHistoryObservable(saveResultObservable)
+    .subscribe(function success(data) {
         if (angular.isDefined(data._embedded)) {
             $scope.history = data._embedded.calculateResults;
         }
