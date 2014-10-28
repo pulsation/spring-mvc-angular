@@ -16,25 +16,12 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
         });
     };
 
-/*
-    var httpSaveResult = function (operation, value) {
-        return $http({
-            method: 'POST',
-            url: '',
-            data: {
-                "operation" : operation,
-                "value"     : value
-            }
-        });
-    }
-*/
     var httpLoadHistory = function () {
         return $http({
             method: 'GET',
             url: '/data/calculate-results/'
         });
     }
-
 
     // Create an observable
     var updatePartialObservable =
@@ -60,11 +47,8 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
         console.log(data);
     });
 
-    var saveResultObservable = $scope.$createObservableFunction('saveResult');
-    var clickSaveSubject = new Rx.Subject();
-    saveResultObservable.subscribe(clickSaveSubject);
-
-    var saveResultSubject = clickSaveSubject.map(function (operand) {
+    var saveResultObservable = $scope.$createObservableFunction('saveResult')
+    .map(function (operand) {
         var result = new OperationResult();
 
         result.operation = operand + "^2";
@@ -76,7 +60,7 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
     }).share();
 
     $scope.alertTimeout = null;
-    saveResultSubject.subscribe(function success(response) {
+    saveResultObservable.subscribe(function success(response) {
         $scope.operation.saveStatus = true;
             if ($scope.alertTimeout !== null) {
                 $timeout.cancel($scope.alertTimeout);
@@ -88,12 +72,11 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
         $scope.operation.saveStatus = false;
     });
 
-    var loadHistoryObservable = saveResultSubject.flatMap(function () {
+    var loadHistoryObservable = saveResultObservable.startWith(null).flatMap(function () {
         return httpLoadHistory();
     });
 
     loadHistoryObservable.subscribe(function success(response) {
-        console.log("Loading history.");
         if (angular.isDefined(response.data._embedded)) {
             $scope.history = response.data._embedded.calculateResults;
         }
