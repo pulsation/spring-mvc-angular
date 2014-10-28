@@ -16,13 +16,6 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
         });
     };
 
-    var httpLoadHistory = function () {
-        return $http({
-            method: 'GET',
-            url: '/data/calculate-results/'
-        });
-    }
-
     // Create an observable
     var updatePartialObservable =
     // Watch scope variable named "operation.operand"
@@ -73,12 +66,14 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
     });
 
     var loadHistoryObservable = saveResultObservable.startWith(null).flatMap(function () {
-        return httpLoadHistory();
+        var resultHistory = new OperationResult();
+        return resultHistory.$get();
     });
 
-    loadHistoryObservable.subscribe(function success(response) {
-        if (angular.isDefined(response.data._embedded)) {
-            $scope.history = response.data._embedded.calculateResults;
+    loadHistoryObservable.subscribe(function success(data) {
+        console.log(data);
+        if (angular.isDefined(data._embedded)) {
+            $scope.history = data._embedded.calculateResults;
         }
     }, function failure(data) {
         console.log("Error loading history:");
