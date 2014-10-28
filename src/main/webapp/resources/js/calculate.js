@@ -72,9 +72,8 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
         return result;
     })
     .flatMap(function (operationResult) {
-        console.log("SAVING");
         return operationResult.$save();
-    });
+    }).share();
 
     $scope.alertTimeout = null;
     saveResultSubject.subscribe(function success(response) {
@@ -89,7 +88,7 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
         $scope.operation.saveStatus = false;
     });
 
-    var loadHistoryObservable = saveResultSubject.startWith(1).flatMap(function () {
+    var loadHistoryObservable = saveResultSubject.flatMap(function () {
         return httpLoadHistory();
     });
 
