@@ -148,11 +148,19 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
  */
 .controller('HistoryCtrl',  function ($scope, observeOnScope, OperationResult, loadHistoryObservable) {
 
+    $scope.gridOptions = {
+        columnDefs: [
+            {name: 'Operation', field: 'operation'},
+            {name: 'Result', field: 'value' },
+            {name: 'Created on', field: 'created'}
+        ]
+    }
+
     // Create an observable that loads history once an entry has been saved
     loadHistoryObservable($scope.$eventToObservable('resultSaved'))
     .subscribe(function success(data) {
         if (angular.isDefined(data._embedded)) {
-            $scope.history = data._embedded.calculateResults;
+            $scope.gridOptions.data = data._embedded.calculateResults;
         }
     }, function failure(data) {
         console.log("Error loading history:");
