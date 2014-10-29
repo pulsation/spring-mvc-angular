@@ -150,9 +150,19 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
 
     $scope.gridOptions = {
         columnDefs: [
-            {name: 'Operation', field: 'operation'},
-            {name: 'Result', field: 'value' },
-            {name: 'Created on', field: 'created'}
+            {
+                name: 'Operation',
+                field: 'operation'
+            },
+            {
+                name: 'Result',
+                field: 'value'
+            },
+            {
+                name: 'Created on',
+                field: 'created',
+                cellFilter: 'date:\'MM/dd/yyyy HH:MM:ss\''
+            }
         ]
     }
 
