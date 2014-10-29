@@ -43,9 +43,10 @@
             </div>
 
         </form>
-        <alert type="success" ng-show="operation.saveStatus === true" class="alert-animate">Result saved.</alert>
-        <alert type="danger" ng-show="operation.saveStatus === false" class="alert-animate">Error saving result.</alert>
-
+        <div ng-controller="AlertCtrl">
+            <alert type="success" ng-show="saveStatus === true" class="alert-animate">Result saved.</alert>
+            <alert type="danger" ng-show="saveStatus === false" class="alert-animate">Error saving result.</alert>
+        </div>
     </div>
     <div class="col-md-8" ng-controller="HistoryCtrl">
         <div ui-grid="gridOptions" class="myGrid"></div>

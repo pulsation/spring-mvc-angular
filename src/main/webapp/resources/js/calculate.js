@@ -87,34 +87,34 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
 })
 
 /**
+ * Display the proper alert once an entry has been saved
+*/
+.controller('AlertCtrl', function ($scope, $timeout) {
+
+    $scope.alertTimeout = null;
+    $scope.saveStatus   = undefined;
+
+    $scope.$on('resultSaved', function () {
+        $scope.saveStatus = true;
+        if ($scope.alertTimeout !== null) {
+            $timeout.cancel($scope.alertTimeout);
+        }
+        $scope.alertTimeout = $timeout(function () {
+            $scope.saveStatus = null;
+        }, 1500);
+    });
+
+    $scope.$on('resultSaveFailed', function () {
+        $scope.saveStatus = false;
+    });
+})
+
+/**
  * Calculation controller
  */
 .controller('CalculateCtrl', function ($scope, $timeout, loadPartialObservable, saveResultObservable, $rootScope) {
 
     $scope.operation = {};
-
-    /**
-     * Display the proper alert once an entry has been saved
-     */
-    $scope.alertTimeout = null;
-    var updateSaveStatus = function (success) {
-        if (success) {
-            return function () {
-                $scope.operation.saveStatus = true;
-                    if ($scope.alertTimeout !== null) {
-                        $timeout.cancel($scope.alertTimeout);
-                    }
-                    $scope.alertTimeout = $timeout(function () {
-                        $scope.operation.saveStatus = null;
-                    }, 1500
-                );
-            }
-        } else {
-            return function () {
-                $scope.operation.saveStatus = false;
-            }
-        }
-    }
 
     // Subscribe to an observable created from the scope variable named "operation.operand"
     loadPartialObservable($scope.$toObservable('operation.operand'))
@@ -131,10 +131,10 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
     // Display the correct alert message after the entry has been saved
     saveResultObservable($scope.$createObservableFunction('saveResult'))
     .subscribe(function () {
-            updateSaveStatus(true);
             $rootScope.$broadcast('resultSaved');
-        },
-        updateSaveStatus(false)
+        }, function () {
+            $rootScope.$broadcast('resultSaveFailed');
+        }
     );
 })
 
