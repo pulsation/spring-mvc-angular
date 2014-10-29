@@ -8,7 +8,7 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
     return $resource('/data/calculate-results/');
 }])
 
-.service('observableChains', function ($http, OperationResult) {
+.factory('observableChains', function ($http, OperationResult) {
 
     // Load template partial
     var httpSquarePartial = function (x) {
