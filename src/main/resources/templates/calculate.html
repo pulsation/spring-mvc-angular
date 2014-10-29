@@ -20,9 +20,9 @@
         </div>
     </div>
 </nav>
-<div ng-controller="CalculateCtrl" class="row">
+<div class="row">
     <div class="col-md-4">
-        <form name="form" class="css-form" novalidate="true" ng-submit="saveResult(operation.operand)">
+        <form ng-controller="CalculateCtrl" name="form" class="css-form" novalidate="true" ng-submit="saveResult(operation.operand)">
             <div class="well">
 
                 <div class="input-group">
@@ -47,7 +47,7 @@
         <alert type="danger" ng-show="operation.saveStatus === false" class="alert-animate">Error saving result.</alert>
 
     </div>
-    <div class="col-md-8">
+    <div class="col-md-8" ng-controller="HistoryCtrl">
         <div ui-grid="{ data: history }" class="myGrid"></div>
     </div>
 </div>
