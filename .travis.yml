@@ -4,4 +4,4 @@ env:
      - TERM=dumb
 
 script:
-     - ./gradlew assemble -x check
+     - ./gradlew check
