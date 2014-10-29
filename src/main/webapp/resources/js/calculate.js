@@ -20,45 +20,64 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
     };
 }])
 
-.factory('calculateObservables', function (httpSquarePartial, OperationResult) {
+/**
+ * Load result partial
+ */
+.factory('loadPartialObservable', function (httpSquarePartial) {
 
-    return function (numberChangedObservable, clickSaveObservable) {
+    return function (numberChangedObservable) {
 
-        return {
-            loadPartialObservable :
-                numberChangedObservable
+        var result =
 
-                 // Throttle stream in order to avoid too much ajax requests
-                 .throttle(300)
+            numberChangedObservable
 
-                 // Take async requests in the right order
-                 .flatMapLatest(function(operand) {
-                     return (httpSquarePartial(operand.newValue));
-                 }),
+             // Throttle stream in order to avoid too much ajax requests
+             .throttle(300)
 
-
-            saveResultObservable :
-                clickSaveObservable
-
-                // Map operand to something writable
-                .map(function (operand) {
-                    var result = new OperationResult();
-
-                    result.operation = operand + "^2";
-                    result.value = operand * operand;
-                    return result;
-                })
-
-                .flatMap(function (operationResult) {
-                    return operationResult.$save();
-                })
-        }
-
+             // Take async requests in the right order
+             .flatMapLatest(function(operand) {
+                 return (httpSquarePartial(operand.newValue));
+             });
+         return result;
     };
 })
 
+/**
+ * Save result entry
+ */
+.factory('saveResultObservable', function (OperationResult) {
+
+    return function (clickSaveObservable) {
+
+        var result =
+
+            clickSaveObservable
+
+            // Map operand to something writable
+            .map(function (operand) {
+
+                var result = new OperationResult();
+
+                result.operation = operand + "^2";
+                result.value     = operand * operand;
+
+                return result;
+            })
+
+            .flatMap(function (operationResult) {
+                return operationResult.$save();
+            });
+        return result;
+    };
+})
+
+/**
+ * Load history
+ */
+
 .factory ('loadHistoryObservable', function (OperationResult) {
     return function (resultSavedObservable) {
+    
         return resultSavedObservable
 
         // Load history as soon as the application is launched
@@ -72,8 +91,11 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
     };
 })
 
-.controller('CalculateCtrl', function ($scope, $timeout, calculateObservables, $rootScope) {
-    // Initialize scope variables
+/**
+ * Calculation controller
+ */
+.controller('CalculateCtrl', function ($scope, $timeout, loadPartialObservable, saveResultObservable, $rootScope) {
+
     $scope.operation = {};
 
     /**
@@ -100,41 +122,34 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
     }
 
     // Subscribe to an observable created from the scope variable named "operation.operand"
-    var ch = calculateObservables($scope.$toObservable('operation.operand'), $scope.$createObservableFunction('saveResult'));
-
-    ch.loadPartialObservable
+    loadPartialObservable($scope.$toObservable('operation.operand'))
     .subscribe(function success(response) {
 
         // Replace HTML code with data content
         $scope.operation.resultPartial = response.data;
 
     }, function failure(data) {
-
-        // Handle error
         console.log("Error loading partial:");
         console.log(data);
     });
 
-    // Create a shared observable from function "saveResult" that is bound to the "Save" button
-    var saveResultObservable = ch.saveResultObservable
-    .share();
-
     // Display the correct alert message after the entry has been saved
-    saveResultObservable.subscribe(
-        function () {
+    saveResultObservable($scope.$createObservableFunction('saveResult'))
+    .subscribe(function () {
             updateSaveStatus(true);
-            $rootScope.$broadcast('SOME_TAG');
+            $rootScope.$broadcast('resultSaved');
         },
         updateSaveStatus(false)
     );
 })
 
+/**
+ * History update controller
+ */
 .controller('HistoryCtrl',  function ($scope, observeOnScope, OperationResult, loadHistoryObservable) {
 
-
-
     // Create an observable that loads history once an entry has been saved
-    loadHistoryObservable($scope.$eventToObservable('SOME_TAG'))
+    loadHistoryObservable($scope.$eventToObservable('resultSaved'))
     .subscribe(function success(data) {
         if (angular.isDefined(data._embedded)) {
             $scope.history = data._embedded.calculateResults;
