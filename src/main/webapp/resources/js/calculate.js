@@ -27,9 +27,7 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
 
     return function (numberChangedObservable) {
 
-        var result =
-
-            numberChangedObservable
+        return numberChangedObservable
 
              // Throttle stream in order to avoid too much ajax requests
              .throttle(300)
@@ -38,7 +36,7 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
              .flatMapLatest(function(operand) {
                  return (httpSquarePartial(operand.newValue));
              });
-         return result;
+
     };
 })
 
@@ -49,25 +47,22 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
 
     return function (clickSaveObservable) {
 
-        var result =
+        return clickSaveObservable
 
-            clickSaveObservable
+        // Map operand to something writable
+        .map(function (operand) {
 
-            // Map operand to something writable
-            .map(function (operand) {
+            var result = new OperationResult();
 
-                var result = new OperationResult();
+            result.operation = operand + "^2";
+            result.value     = operand * operand;
 
-                result.operation = operand + "^2";
-                result.value     = operand * operand;
+            return result;
+        })
 
-                return result;
-            })
-
-            .flatMap(function (operationResult) {
-                return operationResult.$save();
-            });
-        return result;
+        .flatMap(function (operationResult) {
+            return operationResult.$save();
+        });
     };
 })
 
