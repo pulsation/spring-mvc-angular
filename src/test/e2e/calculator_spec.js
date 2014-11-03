@@ -19,4 +19,24 @@ describe('Calculate hompage', function() {
     expect(successAlert.isDisplayed()).toBeTruthy();
   });
 
+  it('should add result to history', function () {
+    element(by.model('operation.operand')).sendKeys('3');
+    var saveButton = element(by.css('button[type="submit"]'));
+    saveButton.click();
+
+    var lastRow = element.all( by.repeater('(rowRenderIndex, row) in rowContainer.renderedRows track by row.uid')  )
+    .filter(function (row, index) {
+        var cols = row.all( by.repeater('(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name'));
+        return cols.get(0).getText().then(function(text) {
+            return (text == "3^2");
+        });
+    })
+    .each(function (row) {
+        var cols = row.all( by.repeater('(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name'));
+        cols.get(1).then(function(col) {
+            expect(col.getText()).toBe("9");
+        });
+    });
+  });
+
 });
