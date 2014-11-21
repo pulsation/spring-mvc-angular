@@ -1,4 +1,4 @@
-angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', 'ngAnimate', 'ui.grid'])
+angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', 'ngAnimate', 'ui.grid', 'ui.grid.hateoas'])
 
 /**
  * REST resource for operation results
