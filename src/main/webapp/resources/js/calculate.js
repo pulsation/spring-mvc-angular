@@ -160,12 +160,15 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
             }
         ]
     }
-/*
-                        gridOptions.pagingPageSizes = [10, 20, 30];
-                        gridOptions.pagingPageSize  = 10;
-*/
+
+    $scope.gridOptions.pagingPageSizes = [10, 20, 30];
+    $scope.gridOptions.pagingPageSize  = 10;
+
 
     // Create an observable that loads history once an entry has been saved
+
+    /*
+
     loadHistoryObservable($scope.$eventToObservable('resultSaved'))
     .subscribe(function success(data) {
         if (angular.isDefined(data._embedded)) {
@@ -175,5 +178,8 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
         console.log("Error loading history:");
         console.log(data);
     });
+
+    */
+
 });
 

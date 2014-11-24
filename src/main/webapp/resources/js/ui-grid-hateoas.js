@@ -12,8 +12,8 @@
 
      var module = angular.module('ui.grid.hateoas', ['ui.grid', 'ui.grid.paging']);
 
-     module.service('uiGridHateoasService', ['gridUtil',
-        function (gridUtil) {
+     module.service('uiGridHateoasService', ['gridUtil', '$resource',
+        function (gridUtil, $resource) {
             var service = {
                 initializeGrid: function(grid, hateoasOptions) {
                     service.defaultGridOptions(grid.options, hateoasOptions);
@@ -22,6 +22,15 @@
                 defaultGridOptions: function (gridOptions, hateoasOptions) {
                     angular.extend(gridOptions, hateoasOptions);
 
+                },
+
+                loadData : function (url, currentPage, pageSize) {
+                    var res = $resource(url);
+                    return res.get({
+                        'pages': '',
+                        'size': pageSize,
+                        'page': currentPage
+                    });
                 }
             };
 
@@ -43,7 +52,15 @@
                             console.log("TODO: Manage paging");
                         }
 
-                        console.log("TODO: Manage HATEOAS link " +  uiGridCtrl.grid.options.uiGridHateoas);
+                        uiGridHateoasService.loadData(uiGridCtrl.grid.options.uiGridHateoas, uiGridCtrl.grid.options.pagingCurrentPage - 1, uiGridCtrl.grid.options.pagingPageSize).$promise.then(function (response) {
+                            var data = [];
+                            for (var key in response._embedded) {
+                                data.push(response._embedded[key]);
+                            }
+                            // Equivalent to flatmap, c.f. http://stackoverflow.com/a/15397506
+                            uiGridCtrl.grid.options.data = [].concat.apply([], data);
+                        });
+
                     }
                 };
             }
