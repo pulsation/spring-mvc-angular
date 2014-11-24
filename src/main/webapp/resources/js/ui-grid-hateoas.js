@@ -15,13 +15,13 @@
      module.service('uiGridHateoasService', ['gridUtil',
         function (gridUtil) {
             var service = {
-                initializeGrid: function(grid) {
-                    service.defaultGridOptions(grid.options);
+                initializeGrid: function(grid, hateoasOptions) {
+                    service.defaultGridOptions(grid.options, hateoasOptions);
                 },
 
-                defaultGridOptions: function (gridOptions) {
-                    gridOptions.pagingPageSizes = [10, 20, 30];
-                    gridOptions.pagingPageSize  = 10;
+                defaultGridOptions: function (gridOptions, hateoasOptions) {
+                    angular.extend(gridOptions, hateoasOptions);
+
                 }
             };
 
@@ -32,13 +32,18 @@
      module.directive('uiGridHateoas', ['uiGridHateoasService', function (uiGridHateoasService) {
         return {
             scope: false,
-            require: ['uiGrid'],
+            require: 'uiGrid',
             compile: function($scope, $elm, $attr){
                 return {
-                    pre: function($scope, $elm, $attr, ctrls) {
-                        uiGridHateoasService.initializeGrid(ctrls[0].grid);
+                    pre: function($scope, $elm, $attr, uiGridCtrl) {
+                        uiGridHateoasService.initializeGrid(uiGridCtrl.grid, { 'uiGridHateoas': $attr.uiGridHateoas });
                     },
-                    post: function($scope, $elm, $attr) {
+                    post: function($scope, $elm, $attr, uiGridCtrl) {
+                        if (uiGridCtrl.grid.options.enablePaging) {
+                            console.log("TODO: Manage paging");
+                        }
+
+                        console.log("TODO: Manage HATEOAS link " +  uiGridCtrl.grid.options.uiGridHateoas);
                     }
                 };
             }
