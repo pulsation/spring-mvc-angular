@@ -21,10 +21,13 @@
 
                 defaultGridOptions: function (gridOptions, hateoasOptions) {
                     angular.extend(gridOptions, hateoasOptions);
-
+                    if (gridOptions.enablePaging) {
+                        gridOptions.useExternalPaging = true;
+                        console.log("TODO: Manage paging");
+                    }
                 },
 
-                loadData : function (params/*url, currentPage, pageSize*/) {
+                loadData : function (params, options) {
                     var res = $resource(params.url);
                     var responsePromise = res.get({
                         'pages': '',
@@ -34,6 +37,11 @@
 
                     return responsePromise.then(function success (response) {
                         var data = [];
+
+                        console.log("FIXME: options.totalItems is not taken in account. https://github.com/angular-ui/ng-grid/blob/master/src/features/paging/js/ui-grid-paging.js");
+                        options.totalItems = response.page.totalElements;
+
+                        console.log(options.totalItems);
                         for (var key in response._embedded) {
                             data.push(response._embedded[key]);
                         }
@@ -42,7 +50,11 @@
                         throw "Error: Could not load data"
                             + (response.status && response.statusText ? ": " + response.status + " (" + response.statusText + ")"
                             : "");
+                    })
+                    .then(function(data) {
+                        options.data = _.flatten(data);
                     });
+
                 }
             };
 
@@ -53,18 +65,26 @@
      module.directive('uiGridHateoas', ['uiGridHateoasService', function (uiGridHateoasService) {
         return {
             scope: false,
+            priority: -200,
             require: 'uiGrid',
+
             compile: function($scope, $elm, $attr){
                 return {
                     pre: function($scope, $elm, $attr, uiGridCtrl) {
-                        uiGridHateoasService.initializeGrid(uiGridCtrl.grid, { 'uiGridHateoas': $attr.uiGridHateoas });
+                        uiGridHateoasService.initializeGrid(uiGridCtrl.grid, {
+                            'uiGridHateoas': $attr.uiGridHateoas
+                        });
                     },
                     post: function($scope, $elm, $attr, uiGridCtrl) {
 
                         var gridOptions = uiGridCtrl.grid.options;
 
                         if (gridOptions.enablePaging) {
-                            console.log("TODO: Manage paging");
+                            uiGridCtrl.grid.api.paging.on.pagingChanged($scope, function (currentPage, pageSize) {
+                                console.log("TODO: Update data");
+                                console.log(currentPage);
+                                console.log(pageSize);
+                            });
                         }
 
                         uiGridHateoasService
@@ -73,11 +93,11 @@
                             url:            gridOptions.uiGridHateoas,
                             currentPage:    gridOptions.pagingCurrentPage - 1,
                             pageSize:       gridOptions.pagingPageSize
-                        })
-
-                        .then(function(data) {
-                            uiGridCtrl.grid.options.data = _.flatten(data);
+                        }, gridOptions)
+                        .then(function () {
+                            uiGridCtrl.grid.refresh();
                         });
+
                     }
                 };
             }
