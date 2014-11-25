@@ -57,8 +57,7 @@
                             for (var key in response._embedded) {
                                 data.push(response._embedded[key]);
                             }
-                            // Equivalent to flatmap, c.f. http://stackoverflow.com/a/15397506
-                            uiGridCtrl.grid.options.data = [].concat.apply([], data);
+                            uiGridCtrl.grid.options.data = _.flatten(data);
                         });
 
                     }

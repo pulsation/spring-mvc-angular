@@ -44,6 +44,8 @@ dependencies {
     // Remove ui grid webjar for now.
     // compile 'org.webjars:ui-grid:3.0.0-rc.11'
 
+    compile 'org.webjars:underscorejs:1.7.0'
+
     compile 'org.webjars:rxjs:2.3.13'
     compile 'org.webjars:rx-angular:0.0.11'
 
