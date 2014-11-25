@@ -24,20 +24,24 @@
 
                 },
 
-                loadData : function (url, currentPage, pageSize) {
-                    var res = $resource(url);
+                loadData : function (params/*url, currentPage, pageSize*/) {
+                    var res = $resource(params.url);
                     var responsePromise = res.get({
                         'pages': '',
-                        'size': pageSize,
-                        'page': currentPage
+                        'size': params.pageSize,
+                        'page': params.currentPage
                     }).$promise;
 
-                    return responsePromise.then(function (response) {
+                    return responsePromise.then(function success (response) {
                         var data = [];
                         for (var key in response._embedded) {
                             data.push(response._embedded[key]);
                         }
                         return _.flatten(data);
+                    }, function failure (response) {
+                        throw "Error: Could not load data"
+                            + (response.status && response.statusText ? ": " + response.status + " (" + response.statusText + ")"
+                            : "");
                     });
                 }
             };
@@ -64,7 +68,12 @@
                         }
 
                         uiGridHateoasService
-                        .loadData(gridOptions.uiGridHateoas, gridOptions.pagingCurrentPage - 1, gridOptions.pagingPageSize)
+
+                        .loadData({
+                            url:            gridOptions.uiGridHateoas,
+                            currentPage:    gridOptions.pagingCurrentPage - 1,
+                            pageSize:       gridOptions.pagingPageSize
+                        })
 
                         .then(function(data) {
                             uiGridCtrl.grid.options.data = _.flatten(data);
