@@ -26,10 +26,18 @@
 
                 loadData : function (url, currentPage, pageSize) {
                     var res = $resource(url);
-                    return res.get({
+                    var responsePromise = res.get({
                         'pages': '',
                         'size': pageSize,
                         'page': currentPage
+                    }).$promise;
+
+                    return responsePromise.then(function (response) {
+                        var data = [];
+                        for (var key in response._embedded) {
+                            data.push(response._embedded[key]);
+                        }
+                        return _.flatten(data);
                     });
                 }
             };
@@ -48,18 +56,19 @@
                         uiGridHateoasService.initializeGrid(uiGridCtrl.grid, { 'uiGridHateoas': $attr.uiGridHateoas });
                     },
                     post: function($scope, $elm, $attr, uiGridCtrl) {
-                        if (uiGridCtrl.grid.options.enablePaging) {
+
+                        var gridOptions = uiGridCtrl.grid.options;
+
+                        if (gridOptions.enablePaging) {
                             console.log("TODO: Manage paging");
                         }
 
-                        uiGridHateoasService.loadData(uiGridCtrl.grid.options.uiGridHateoas, uiGridCtrl.grid.options.pagingCurrentPage - 1, uiGridCtrl.grid.options.pagingPageSize).$promise.then(function (response) {
-                            var data = [];
-                            for (var key in response._embedded) {
-                                data.push(response._embedded[key]);
-                            }
+                        uiGridHateoasService
+                        .loadData(gridOptions.uiGridHateoas, gridOptions.pagingCurrentPage - 1, gridOptions.pagingPageSize)
+
+                        .then(function(data) {
                             uiGridCtrl.grid.options.data = _.flatten(data);
                         });
-
                     }
                 };
             }
