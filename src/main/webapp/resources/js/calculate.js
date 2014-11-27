@@ -75,9 +75,6 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
     
         return resultSavedObservable
 
-        // Load history as soon as the application is launched
-        .startWith(null)
-
         .flatMap(function () {
             var resultHistory = new OperationResult();
             return resultHistory.$get();
@@ -164,22 +161,21 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
     $scope.gridOptions.enablePaging = true;
     $scope.gridOptions.pagingPageSizes = [10, 20, 30];
     $scope.gridOptions.pagingPageSize  = 10;
+    $scope.gridOptions.onRegisterApi = function (gridApi) {
+        $scope.gridApi = gridApi;
+    };
 
     // Create an observable that loads history once an entry has been saved
-
-    /*
 
     loadHistoryObservable($scope.$eventToObservable('resultSaved'))
     .subscribe(function success(data) {
         if (angular.isDefined(data._embedded)) {
-            $scope.gridOptions.data = data._embedded.calculateResults;
+            $scope.gridApi.hateoas.reloadData($scope.gridOptions);
         }
     }, function failure(data) {
         console.log("Error loading history:");
         console.log(data);
     });
-
-    */
 
 });
 

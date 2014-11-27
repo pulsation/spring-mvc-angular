@@ -17,6 +17,18 @@
             var service = {
                 initializeGrid: function(grid, urlAsAttr) {
                     service.defaultGridOptions(grid.options, urlAsAttr);
+
+                    var publicApi = {
+                        methods: {
+                            hateoas: {
+                                reloadData: function() {
+                                    service.loadData(this.options);
+                                }
+                            }
+                        }
+                    };
+
+                    grid.api.registerMethodsFromObject(publicApi.methods);
                 },
 
                 defaultGridOptions: function (gridOptions, urlAsAttr) {
@@ -34,7 +46,7 @@
                     }
                 },
 
-                loadData : function test(options) {
+                loadData : function (options) {
                     var res = $resource(options.hateoas.url);
 
                     var resourceOptions = new function () {
