@@ -161,6 +161,7 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
         ]
     }
 
+    $scope.gridOptions.enablePaging = true;
     $scope.gridOptions.pagingPageSizes = [10, 20, 30];
     $scope.gridOptions.pagingPageSize  = 10;
 

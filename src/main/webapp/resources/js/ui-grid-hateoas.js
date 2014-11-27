@@ -23,7 +23,6 @@
                     angular.extend(gridOptions, hateoasOptions);
                     if (gridOptions.enablePaging) {
                         gridOptions.useExternalPaging = true;
-                        console.log("TODO: Manage paging");
                     }
                 },
 
@@ -38,10 +37,7 @@
                     return responsePromise.then(function success (response) {
                         var data = [];
 
-                        console.log("FIXME: options.totalItems is not taken in account. https://github.com/angular-ui/ng-grid/blob/master/src/features/paging/js/ui-grid-paging.js");
                         options.totalItems = response.page.totalElements;
-
-                        console.log(options.totalItems);
                         for (var key in response._embedded) {
                             data.push(response._embedded[key]);
                         }
@@ -81,9 +77,17 @@
 
                         if (gridOptions.enablePaging) {
                             uiGridCtrl.grid.api.paging.on.pagingChanged($scope, function (currentPage, pageSize) {
-                                console.log("TODO: Update data");
-                                console.log(currentPage);
-                                console.log(pageSize);
+
+                                uiGridHateoasService
+                                .loadData({
+                                    url:            gridOptions.uiGridHateoas,
+                                    currentPage:    gridOptions.pagingCurrentPage - 1,
+                                    pageSize:       gridOptions.pagingPageSize
+                                }, gridOptions)
+                                .then(function () {
+                                    uiGridCtrl.grid.refresh();
+                                });
+
                             });
                         }
 
