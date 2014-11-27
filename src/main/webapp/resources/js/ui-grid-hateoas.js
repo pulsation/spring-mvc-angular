@@ -12,8 +12,8 @@
 
      var module = angular.module('ui.grid.hateoas', ['ui.grid', 'ui.grid.paging']);
 
-     module.service('uiGridHateoasService', ['gridUtil', '$resource', 'uiGridConstants',
-        function (gridUtil, $resource, uiGridConstants) {
+     module.service('uiGridHateoasService', ['gridUtil', '$http', 'uiGridConstants',
+        function (gridUtil, $http, uiGridConstants) {
 
             var service = {
 
@@ -56,34 +56,34 @@
                 },
 
                 loadData : function (options) {
-
-                    var res = $resource(options.hateoas.url);
+                    var url = options.hateoas.url;
 
                     var resourceOptions = new function () {
-                        this[options.hateoas.requestParams.pages]   = '';
-                        this[options.hateoas.requestParams.size]    = options.pagingPageSize;
-                        this[options.hateoas.requestParams.page]    = options.pagingCurrentPage - 1;
+                        var self = this;
+
+                        url += (url.indexOf('?') === -1) ? '?' : '&';
+                        url += encodeURIComponent(options.hateoas.requestParams.pages);
+                        url += "&" + encodeURIComponent(options.hateoas.requestParams.size) + '=' + encodeURIComponent(options.pagingPageSize);
+                        url += "&" + encodeURIComponent(options.hateoas.requestParams.page) + '=' + encodeURIComponent(options.pagingCurrentPage - 1);
                         if (service.sortColumns.length > 0) {
-                            this[options.hateoas.requestParams.sort]    = service.sortColumns[0].field;
-                            switch( service.sortColumns[0].sort.direction ) {
-                                case uiGridConstants.ASC:
-                                this[options.hateoas.requestParams.sort] += options.hateoas.requestParams.asc;
-                                break;
-                                case uiGridConstants.DESC:
-                                this[options.hateoas.requestParams.sort] += options.hateoas.requestParams.desc;
-                                break;
-                            }
+                            angular.forEach(service.sortColumns, function (sortColumn) {
+                                url += "&" + encodeURIComponent(options.hateoas.requestParams.sort) + '=' + encodeURIComponent(sortColumn.field);
+                                if (sortColumn.sort.direction === uiGridConstants.ASC) {
+                                    url += encodeURIComponent(options.hateoas.requestParams.asc);
+                                } else if (sortColumn.sort.direction === uiGridConstants.DESC) {
+                                    url += encodeURIComponent(options.hateoas.requestParams.desc);
+                                }
+                            });
                         }
                     };
 
-                    var responsePromise = res.get(resourceOptions).$promise;
+                    var responsePromise = $http.get(url);
 
                     return responsePromise.then(function success (response) {
                         var data = [];
-
-                        options.totalItems = response.page.totalElements;
-                        for (var key in response._embedded) {
-                            data.push(response._embedded[key]);
+                        options.totalItems = response.data.page.totalElements;
+                        for (var key in response.data._embedded) {
+                            data.push(response.data._embedded[key]);
                         }
                         return _.flatten(data);
                     }, function failure (response) {
