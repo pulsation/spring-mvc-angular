@@ -12,9 +12,13 @@
 
      var module = angular.module('ui.grid.hateoas', ['ui.grid', 'ui.grid.paging']);
 
-     module.service('uiGridHateoasService', ['gridUtil', '$resource',
-        function (gridUtil, $resource) {
+     module.service('uiGridHateoasService', ['gridUtil', '$resource', 'uiGridConstants',
+        function (gridUtil, $resource, uiGridConstants) {
+
             var service = {
+
+                sortColumns: [],
+
                 initializeGrid: function(grid, urlAsAttr) {
                     service.defaultGridOptions(grid.options, urlAsAttr);
 
@@ -29,6 +33,7 @@
                     };
 
                     grid.api.registerMethodsFromObject(publicApi.methods);
+
                 },
 
                 defaultGridOptions: function (gridOptions, urlAsAttr) {
@@ -40,19 +45,35 @@
                     gridOptions.hateoas.requestParams.page  = gridOptions.hateoas.requestParams.page || 'page';
                     gridOptions.hateoas.requestParams.size  = gridOptions.hateoas.requestParams.size || 'size';
                     gridOptions.hateoas.requestParams.pages = gridOptions.hateoas.requestParams.pages || 'pages';
+                    gridOptions.hateoas.requestParams.sort  = gridOptions.hateoas.requestParams.sort || 'sort';
+                    gridOptions.hateoas.requestParams.asc   = gridOptions.hateoas.requestParams.asc || ',asc';
+                    gridOptions.hateoas.requestParams.desc  = gridOptions.hateoas.requestParams.desc || ',desc';
 
                     if (gridOptions.enablePaging) {
                         gridOptions.useExternalPaging = true;
                     }
+                    gridOptions.useExternalSorting = true;
                 },
 
                 loadData : function (options) {
+
                     var res = $resource(options.hateoas.url);
 
                     var resourceOptions = new function () {
                         this[options.hateoas.requestParams.pages]   = '';
                         this[options.hateoas.requestParams.size]    = options.pagingPageSize;
                         this[options.hateoas.requestParams.page]    = options.pagingCurrentPage - 1;
+                        if (service.sortColumns.length > 0) {
+                            this[options.hateoas.requestParams.sort]    = service.sortColumns[0].field;
+                            switch( service.sortColumns[0].sort.direction ) {
+                                case uiGridConstants.ASC:
+                                this[options.hateoas.requestParams.sort] += options.hateoas.requestParams.asc;
+                                break;
+                                case uiGridConstants.DESC:
+                                this[options.hateoas.requestParams.sort] += options.hateoas.requestParams.desc;
+                                break;
+                            }
+                        }
                     };
 
                     var responsePromise = res.get(resourceOptions).$promise;
@@ -74,7 +95,8 @@
                         options.data = _.flatten(data);
                     });
 
-                }
+                },
+
             };
 
             return service;
@@ -107,6 +129,18 @@
 
                             });
                         }
+
+                        uiGridCtrl.grid.api.core.on.sortChanged($scope, function (grid, sortColumns) {
+
+                            uiGridHateoasService.sortColumns = sortColumns;
+
+                            uiGridHateoasService
+                            .loadData(gridOptions)
+                            .then(function () {
+                                uiGridCtrl.grid.refresh();
+                            });
+
+                        });
 
                         uiGridHateoasService
                         .loadData(gridOptions)
