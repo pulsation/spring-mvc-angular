@@ -7,7 +7,7 @@
      * @description
      *
      * # ui.grid.hateoas
-     * [WIP] This module provides read-only hal paging support to ui-grid
+     * This module provides read-only server-side hal paging support to ui-grid
      */
 
      var module = angular.module('ui.grid.hateoas', ['ui.grid', 'ui.grid.paging']);
@@ -49,25 +49,15 @@
                     gridOptions.hateoas.requestParams.asc   = gridOptions.hateoas.requestParams.asc || ',asc';
                     gridOptions.hateoas.requestParams.desc  = gridOptions.hateoas.requestParams.desc || ',desc';
 
-                    if (gridOptions.enablePaging) {
-                        gridOptions.useExternalPaging = true;
-                    }
-                    gridOptions.useExternalSorting = true;
-                },
+                    /**
+                     * A function that adds sorting parameters to the url.
+                     */
+                    gridOptions.hateoas.addSortParams = gridOptions.hateoas.addSortParams || function (url, sortColumns, options) {
 
-                loadData : function (options) {
-                    var url = options.hateoas.url;
-
-                    var resourceOptions = new function () {
-                        var self = this;
-
-                        url += (url.indexOf('?') === -1) ? '?' : '&';
-                        url += encodeURIComponent(options.hateoas.requestParams.pages);
-                        url += "&" + encodeURIComponent(options.hateoas.requestParams.size) + '=' + encodeURIComponent(options.pagingPageSize);
-                        url += "&" + encodeURIComponent(options.hateoas.requestParams.page) + '=' + encodeURIComponent(options.pagingCurrentPage - 1);
-                        if (service.sortColumns.length > 0) {
-                            angular.forEach(service.sortColumns, function (sortColumn) {
-                                url += "&" + encodeURIComponent(options.hateoas.requestParams.sort) + '=' + encodeURIComponent(sortColumn.field);
+                        if (sortColumns.length > 0) {
+                            angular.forEach(sortColumns, function (sortColumn) {
+                                url += "&" + encodeURIComponent(options.hateoas.requestParams.sort)
+                                url += '=' + encodeURIComponent(sortColumn.field);
                                 if (sortColumn.sort.direction === uiGridConstants.ASC) {
                                     url += encodeURIComponent(options.hateoas.requestParams.asc);
                                 } else if (sortColumn.sort.direction === uiGridConstants.DESC) {
@@ -75,7 +65,28 @@
                                 }
                             });
                         }
+                        return url;
                     };
+
+                    if (gridOptions.enablePaging) {
+                        gridOptions.useExternalPaging = true;
+                    }
+                    gridOptions.useExternalSorting = true;
+                },
+
+                loadData : function (options) {
+
+                    var baseUrl = options.hateoas.url;
+
+                    // URL parameters have to be constructed "by hand" to preserve their order.
+                    baseUrl += (baseUrl.indexOf('?') === -1) ? '?' : '&';
+                    baseUrl += encodeURIComponent(options.hateoas.requestParams.pages);
+                    baseUrl += "&" + encodeURIComponent(options.hateoas.requestParams.size);
+                    baseUrl += '=' + encodeURIComponent(options.pagingPageSize);
+                    baseUrl += "&" + encodeURIComponent(options.hateoas.requestParams.page);
+                    baseUrl += '=' + encodeURIComponent(options.pagingCurrentPage - 1);
+
+                    var url = options.hateoas.addSortParams(baseUrl, service.sortColumns, options);
 
                     var responsePromise = $http.get(url);
 
