@@ -26,12 +26,12 @@
                     }
                 },
 
-                loadData : function (params, options) {
-                    var res = $resource(params.url);
+                loadData : function (options) {
+                    var res = $resource(options.uiGridHateoas);
                     var responsePromise = res.get({
                         'pages': '',
-                        'size': params.pageSize,
-                        'page': params.currentPage
+                        'size': options.pagingPageSize,
+                        'page': options.pagingCurrentPage - 1
                     }).$promise;
 
                     return responsePromise.then(function success (response) {
@@ -79,11 +79,7 @@
                             uiGridCtrl.grid.api.paging.on.pagingChanged($scope, function (currentPage, pageSize) {
 
                                 uiGridHateoasService
-                                .loadData({
-                                    url:            gridOptions.uiGridHateoas,
-                                    currentPage:    gridOptions.pagingCurrentPage - 1,
-                                    pageSize:       gridOptions.pagingPageSize
-                                }, gridOptions)
+                                .loadData(gridOptions)
                                 .then(function () {
                                     uiGridCtrl.grid.refresh();
                                 });
@@ -92,12 +88,7 @@
                         }
 
                         uiGridHateoasService
-
-                        .loadData({
-                            url:            gridOptions.uiGridHateoas,
-                            currentPage:    gridOptions.pagingCurrentPage - 1,
-                            pageSize:       gridOptions.pagingPageSize
-                        }, gridOptions)
+                        .loadData(gridOptions)
                         .then(function () {
                             uiGridCtrl.grid.refresh();
                         });
