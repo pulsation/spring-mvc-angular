@@ -165,7 +165,6 @@ angular.module('calculate', ['ui.bootstrap', 'ngSanitize', 'ngResource', 'rx', '
     $scope.gridOptions.pagingPageSizes = [10, 20, 30];
     $scope.gridOptions.pagingPageSize  = 10;
 
-
     // Create an observable that loads history once an entry has been saved
 
     /*
